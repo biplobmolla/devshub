@@ -1,6 +1,8 @@
 <?php
     include 'config.php';
 
+    session_start();
+
     $sql = "SELECT * FROM posts ORDER BY created_at DESC";
     $query = mysqli_query($con, $sql);
 ?>
@@ -47,17 +49,24 @@
                 <img src="./images/search-icon.png" alt="Search Icon" />
               </div>
             </li>
+            <?php if(isset($_SESSION['username'])) { ?>
             <li class="header-auth">
-              <span class="header-username">MD. Biplob Molla</span>
-              <a class="header-logout" href="#">Log out</a>
+              <span class="header-username"><?php echo $_SESSION['fullname']; ?></span>
+              <a class="header-logout" href="logout.php">Log out</a>
               <a
-                href="/profile.html"
+                href="./profile.php"
                 class="profile-icon"
                 aria-label="Your profile"
               >
                 <img src="./images/profile-icon.png" alt="" />
               </a>
             </li>
+            <?php } else { ?>
+            <li class="header-auth">
+              <a class="header-login" href="login.php">Log in</a>
+              <a class="header-register" href="register.php">Register</a>
+            </li>
+            <?php } ?>
           </ul>
         </li>
       </ul>
@@ -66,8 +75,11 @@
       <nav>
         <ul>
           <li><a href="/" class="sidebar-link-active">Home</a></li>
-          <li><a href="/profile.html#my-posts">My posts</a></li>
-          <li><a href="/profile.html">Profile</a></li>
+          <?php
+            if(isset($_SESSION['username'])) { ?>
+              <li><a href="./profile.php#my-posts">My posts</a></li>
+              <li><a href="./profile.php">Profile</a></li>
+          <?php } ?>
         </ul>
       </nav>
     </aside>
@@ -115,6 +127,7 @@
       </section>
     </aside>
     <section class="posts">
+      <?php if(isset($_SESSION['username'])) { ?>
       <form method="post" class="quick-post-form">
         <div class="create-post">
           <div class="profile-icon">
@@ -133,6 +146,7 @@
           </div>
         </div>
       </form>
+      <?php } ?>
       <div class="posts-list" id="posts-list">
         <ul id="post">
           <?php

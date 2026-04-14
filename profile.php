@@ -1,3 +1,8 @@
+<?php
+    session_start();
+
+?>
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -39,8 +44,8 @@
               </div>
             </li>
             <li class="header-auth">
-              <span class="header-username">MD. Biplob Molla</span>
-              <a class="header-logout" href="#">Log out</a>
+              <span class="header-username"><?php echo $_SESSION['fullname']; ?></span>
+              <a class="header-logout" href="logout.php">Log out</a>
               <a href="#" class="profile-icon" aria-label="Your profile">
                 <img src="./images/profile-icon.png" alt="" />
               </a>
@@ -51,7 +56,7 @@
     </header>
     <div class="upper-section">
       <div class="profile-user-icon">
-        <img src="/images/profile-icon.png" alt="Profile Icon" />
+        <img src="./images/profile-icon.png" alt="Profile Icon" />
       </div>
       <div>
         <h1 class="profile-name">Biplob Molla</h1>

@@ -850,3 +850,18 @@ header ul li ul {
 .add-friend button:hover {
     background-color: #166fe5;
 }
+
+.header-login,
+.header-register {
+    color: #fff;
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    background-color: #0069d9;
+    transition: all ease 0.2s;
+}
+
+.header-login:hover,
+.header-register:hover {
+    background-color: #005ec3;
+}
