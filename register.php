@@ -1,3 +1,32 @@
+<?php
+    include 'config.php';
+
+    $sql = "SELECT * FROM users";
+    $query = mysqli_query($con, $sql);
+
+
+    if(isset($_POST['register'])){
+        $fname = $_POST['first_name'];
+        $lname = $_POST['last_name'];
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $confirm_password = $_POST['confirm_password'];
+
+
+        $sql2 = "INSERT INTO users (fullname, username, password)   VALUES ('$fname $lname', '$username', '$password')";
+        $query2 = mysqli_query($con, $sql2);
+
+        
+        if($query2) {
+            echo "Registration successful!";
+            header("Location: login.php");
+        } else {
+                echo "Error: " . mysqli_error($con);
+        }
+    }
+?>
+
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -10,7 +39,7 @@
   <div class="auth-box">
     <h1>DevsHub</h1>
     <h2>Create account</h2>
-    <form>
+    <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
       <div class="form-group">
         <label for="first_name">First name</label>
         <input type="text" name="first_name" id="first_name" maxlength="120" autocomplete="given-name" required />
@@ -31,7 +60,7 @@
         <label for="confirm_password">Confirm password</label>
         <input type="password" name="confirm_password" id="confirm_password" autocomplete="new-password" required />
       </div>
-      <button type="submit" class="auth-submit">Register</button>
+      <button name="register" type="submit" class="auth-submit">Register</button>
     </form>
     <p class="auth-switch"><a href="login.php">Already have an account? Log in</a></p>
   </div>
