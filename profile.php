@@ -188,7 +188,7 @@
                   <div class="profile-icon">
                     <img src="./images/profile-icon.png" alt="Profile Icon" />
                   </div>
-                  <div class="post-author"><?php echo $posts_row['fullname']; ?></div>
+                  <a href="profile.php?id=<?php echo $posts_row['author_id']; ?>" class="post-author"><?php echo $posts_row['fullname']; ?></a>
                 </div>
                 <div class="post-header-right">
                   <span class="post-time">3 minutes ago</span>

@@ -556,6 +556,8 @@ header ul li ul {
     margin-left: 10px;
     min-width: 0;
     font-weight: 700;
+    text-decoration: none;
+    color: black;
 }
 
 .post-author h4 {

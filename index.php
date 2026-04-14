@@ -172,7 +172,7 @@
                   <div class="profile-icon">
                     <img src="./images/profile-icon.png" alt="Profile Icon" />
                   </div>
-                  <div class="post-author"><?php echo $row['fullname']; ?></div>
+                  <a href="profile.php?id=<?php echo $row['author_id']; ?>" class="post-author"><?php echo $row['fullname']; ?></a>
                 </div>
                 <div class="post-header-right">
                   <span class="post-time"><?php echo $row['created_at']; ?></span>
