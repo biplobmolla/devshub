@@ -7,6 +7,10 @@
     $row = null;
     $posts_count = 0;
 
+    $sql = "SELECT * FROM friends WHERE fr_receiver_id='" . $id . "' OR fr_sender_id='" . $id . "'";
+    $query = mysqli_query($con, $sql);
+    $friends_count = mysqli_num_rows($query);
+
     if($id){
       $sql = "SELECT * FROM users WHERE id='$id'";
       $query = mysqli_query($con, $sql);
@@ -134,7 +138,7 @@
         <p class="profile-bio">Web developer and tech enthusiast.</p>
       </div>
       <div class="summary">
-        <div class="friends-summary">3 friends</div>
+        <div class="friends-summary"><?php echo $friends_count; ?> friends</div>
         <div class="posts-summary"><?php echo $posts_count; ?> posts</div>
       </div>
       <?php if($id != $_SESSION['user_id'] && $id != null) {
