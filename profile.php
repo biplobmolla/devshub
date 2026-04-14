@@ -18,6 +18,9 @@
 
     }else if(isset($_SESSION['username'])) {
       $row = $_SESSION['user'];
+            $sql2 = "SELECT * FROM posts WHERE author_id='" . $_SESSION['user_id'] . "' ORDER BY created_at DESC";
+      $query2 = mysqli_query($con, $sql2);
+      $posts_count = mysqli_num_rows($query2);
     }else{
       header("Location: index.php");
     }

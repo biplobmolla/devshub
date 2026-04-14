@@ -66,7 +66,7 @@
               <span class="header-username"><?php echo $_SESSION['fullname']; ?></span>
               <a class="header-logout" href="logout.php">Log out</a>
               <a
-                href="./profile.php"
+                href="./profile.php?id=<?php echo $_SESSION['user_id']; ?>"
                 class="profile-icon"
                 aria-label="Your profile"
               >
@@ -89,8 +89,8 @@
           <li><a href="/" class="sidebar-link-active">Home</a></li>
           <?php
             if(isset($_SESSION['username'])) { ?>
-              <li><a href="./profile.php#my-posts">My posts</a></li>
-              <li><a href="./profile.php">Profile</a></li>
+              <li><a href="./profile.php?id=<?php echo $_SESSION['user_id']; ?>#my-posts">My posts</a></li>
+              <li><a href="./profile.php?id=<?php echo $_SESSION['user_id']; ?>">Profile</a></li>
           <?php } ?>
         </ul>
       </nav>
