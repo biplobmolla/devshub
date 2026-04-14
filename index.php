@@ -1,3 +1,10 @@
+<?php
+    include 'config.php';
+
+    $sql = "SELECT * FROM posts ORDER BY created_at DESC";
+    $query = mysqli_query($con, $sql);
+?>
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -128,6 +135,10 @@
       </form>
       <div class="posts-list" id="posts-list">
         <ul id="post">
+          <?php
+            if(mysqli_num_rows($query) > 0) {
+                while($row = mysqli_fetch_assoc($query)) {
+          ?>
           <li>
             <div class="post-item">
               <div class="post-header">
@@ -135,10 +146,10 @@
                   <div class="profile-icon">
                     <img src="./images/profile-icon.png" alt="Profile Icon" />
                   </div>
-                  <div class="post-author">Biplob Molla</div>
+                  <div class="post-author"><?php echo $row['fullname']; ?></div>
                 </div>
                 <div class="post-header-right">
-                  <span class="post-time">3 minutes ago</span>
+                  <span class="post-time"><?php echo $row['created_at']; ?></span>
                   <details class="post-menu">
                     <summary
                       class="post-menu-summary"
@@ -165,9 +176,15 @@
                   </details>
                 </div>
               </div>
-              <p class="post-content">This is my first post</p>
+              <p class="post-content"><?php echo $row['description']; ?></p>
             </div>
           </li>
+          <?php
+                }
+            } else {
+                echo "<li>No posts found.</li>";
+            }
+          ?>
         </ul>
       </div>
     </section>
