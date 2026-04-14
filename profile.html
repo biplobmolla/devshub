@@ -3,10 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DevsHub</title>
     <link rel="stylesheet" href="style.css" />
+    <title>My Profile</title>
   </head>
-
   <body>
     <div class="container" id="post-modal">
       <div id="close-button">x</div>
@@ -26,7 +25,6 @@
         <button type="submit" id="create-post-button">Save</button>
       </form>
     </div>
-
     <header>
       <ul>
         <li>
@@ -43,11 +41,7 @@
             <li class="header-auth">
               <span class="header-username">MD. Biplob Molla</span>
               <a class="header-logout" href="#">Log out</a>
-              <a
-                href="/profile.html"
-                class="profile-icon"
-                aria-label="Your profile"
-              >
+              <a href="#" class="profile-icon" aria-label="Your profile">
                 <img src="./images/profile-icon.png" alt="" />
               </a>
             </li>
@@ -55,77 +49,24 @@
         </li>
       </ul>
     </header>
-    <aside class="left-sidebar">
-      <nav>
-        <ul>
-          <li><a href="/" class="sidebar-link-active">Home</a></li>
-          <li><a href="/profile.html#my-posts">My posts</a></li>
-          <li><a href="/profile.html">Profile</a></li>
-        </ul>
-      </nav>
-    </aside>
-    <aside class="right-sidebar">
-      <section class="messages">
-        <h2>Messages</h2>
-        <ul>
-          <li class="message-item active">
-            <div class="profile-icon">
-              <img src="./images/profile-icon.png" alt="Profile Icon" />
-            </div>
-            <div class="message-content">
-              <h4>John Doe</h4>
-              <p>Hey, how are you?</p>
-            </div>
-          </li>
-          <li class="message-item">
-            <div class="profile-icon">
-              <img src="./images/profile-icon.png" alt="Profile Icon" />
-            </div>
-            <div class="message-content">
-              <h4>John Doe</h4>
-              <p>Hey, how are you?</p>
-            </div>
-          </li>
-          <li class="message-item">
-            <div class="profile-icon">
-              <img src="./images/profile-icon.png" alt="Profile Icon" />
-            </div>
-            <div class="message-content">
-              <h4>John Doe</h4>
-              <p>Hey, how are you?</p>
-            </div>
-          </li>
-          <li class="message-item">
-            <div class="profile-icon">
-              <img src="./images/profile-icon.png" alt="Profile Icon" />
-            </div>
-            <div class="message-content">
-              <h4>John Doe</h4>
-              <p>Hey, how are you?</p>
-            </div>
-          </li>
-        </ul>
-      </section>
-    </aside>
-    <section class="posts">
-      <form method="post" class="quick-post-form">
-        <div class="create-post">
-          <div class="profile-icon">
-            <img src="./images/profile-icon.png" alt="Profile Icon" />
-          </div>
-          <div class="post-input">
-            <input
-              type="text"
-              name="description"
-              id="post-description"
-              maxlength="5000"
-              required
-              placeholder="Discuss about dev problems and solutions"
-            />
-            <button type="submit" id="post-button">Post</button>
-          </div>
-        </div>
-      </form>
+    <div class="upper-section">
+      <div class="profile-user-icon">
+        <img src="/images/profile-icon.png" alt="Profile Icon" />
+      </div>
+      <div>
+        <h1 class="profile-name">Biplob Molla</h1>
+        <p class="profile-bio">Web developer and tech enthusiast.</p>
+      </div>
+      <div class="summary">
+        <div class="friends-summary">3 friends</div>
+        <div class="posts-summary">5 posts</div>
+      </div>
+      <div class="add-friend">
+        <button>Add Friend</button>
+      </div>
+    </div>
+    <div class="my-posts" id="my-posts">
+      <h4 class="my-posts-title">My posts</h4>
       <div class="posts-list" id="posts-list">
         <ul id="post">
           <li>
@@ -170,7 +111,7 @@
           </li>
         </ul>
       </div>
-    </section>
+    </div>
 
     <script src="script.js"></script>
   </body>
