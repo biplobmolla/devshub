@@ -1,5 +1,26 @@
 <?php
+    include "config.php";
+
     session_start();
+
+    $id = $_GET['id'];
+    $row = null;
+    $posts_count = 0;
+
+    if($id){
+      $sql = "SELECT * FROM users WHERE id='$id'";
+      $query = mysqli_query($con, $sql);
+      $row = mysqli_fetch_assoc($query);
+
+      $sql2 = "SELECT * FROM posts WHERE author_id='$id' ORDER BY created_at DESC";
+      $query2 = mysqli_query($con, $sql2);
+      $posts_count = mysqli_num_rows($query2);
+
+    }else if(isset($_SESSION['username'])) {
+      $row = $_SESSION['user'];
+    }else{
+      header("Location: index.php");
+    }
 
 ?>
 
@@ -59,21 +80,30 @@
         <img src="./images/profile-icon.png" alt="Profile Icon" />
       </div>
       <div>
-        <h1 class="profile-name">Biplob Molla</h1>
+        <h1 class="profile-name"><?php echo $row['fullname']; ?></h1>
         <p class="profile-bio">Web developer and tech enthusiast.</p>
       </div>
       <div class="summary">
         <div class="friends-summary">3 friends</div>
-        <div class="posts-summary">5 posts</div>
+        <div class="posts-summary"><?php echo $posts_count; ?> posts</div>
       </div>
+      <?php if($id != $_SESSION['user_id'] && $id != null) { ?>
       <div class="add-friend">
         <button>Add Friend</button>
       </div>
+      <?php } else { ?>
+      <div class="edit-profile">
+        <button>Edit Profile</button>
+      </div>
+      <?php } ?>
+
     </div>
     <div class="my-posts" id="my-posts">
-      <h4 class="my-posts-title">My posts</h4>
+      <h4 class="my-posts-title"><?php if($id != $_SESSION['user_id'] && $id != null) { echo $row['fullname'] . "'s Posts"; }else { echo "My posts"; } ?></h4>
       <div class="posts-list" id="posts-list">
         <ul id="post">
+          <?php if($posts_count > 0) { 
+            while($posts_row = mysqli_fetch_assoc($query2)) { ?>  
           <li>
             <div class="post-item">
               <div class="post-header">
@@ -81,7 +111,7 @@
                   <div class="profile-icon">
                     <img src="./images/profile-icon.png" alt="Profile Icon" />
                   </div>
-                  <div class="post-author">Biplob Molla</div>
+                  <div class="post-author"><?php echo $posts_row['fullname']; ?></div>
                 </div>
                 <div class="post-header-right">
                   <span class="post-time">3 minutes ago</span>
@@ -111,9 +141,12 @@
                   </details>
                 </div>
               </div>
-              <p class="post-content">This is my first post</p>
+              <p class="post-content"><?php echo $posts_row['description']; ?></p>
             </div>
           </li>
+          <?php } } else { ?>
+            <li>No posts found.</li>
+          <?php }?>
         </ul>
       </div>
     </div>

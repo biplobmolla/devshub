@@ -18,6 +18,7 @@
 
     if(mysqli_num_rows($query) > 0) {
         echo "Login successful!";
+        $_SESSION['user'] = $row;
         $_SESSION['username'] = $username;
         $_SESSION['fullname'] = $row['fullname'];
         $_SESSION['user_id'] = $row['id'];

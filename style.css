@@ -831,12 +831,14 @@ header ul li ul {
     margin-bottom: 15px;
 }
 
-.add-friend {
+.add-friend,
+.edit-profile {
     margin-top: 15px;
     text-align: center;
 }
 
-.add-friend button {
+.add-friend button,
+.edit-profile button {
     background-color: #1877f2;
     color: #fff;
     border: none;
@@ -849,6 +851,14 @@ header ul li ul {
 
 .add-friend button:hover {
     background-color: #166fe5;
+}
+
+.edit-profile button {
+    background-color: #16d4e5;
+}
+
+.edit-profile button:hover {
+    background-color: #13a9b0;
 }
 
 .header-login,
