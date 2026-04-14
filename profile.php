@@ -54,7 +54,7 @@
     <header>
       <ul>
         <li>
-          <a href="/">DevsHub</a>
+          <a href="index.php">DevsHub</a>
         </li>
         <li>
           <ul>

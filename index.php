@@ -5,6 +5,18 @@
 
     $sql = "SELECT * FROM posts ORDER BY created_at DESC";
     $query = mysqli_query($con, $sql);
+
+    if(isset($_SESSION['username']) && isset($_POST['post'])) {
+        $description = $_POST['description'];
+        $author_id = $_SESSION['user_id'];
+        $fullname = $_SESSION['fullname'];
+        $username = $_SESSION['username'];
+
+        $sql = "INSERT INTO posts (description, author_id, fullname, username) VALUES ('$description', '$author_id', '$fullname', '$username')";
+        if(mysqli_query($con, $sql)) {
+            header("Location: index.php");
+        }
+    }
 ?>
 
 <!doctype html>
@@ -39,7 +51,7 @@
     <header>
       <ul>
         <li>
-          <a href="/">DevsHub</a>
+          <a href="index.php">DevsHub</a>
         </li>
         <li>
           <ul>
@@ -142,7 +154,7 @@
               required
               placeholder="Discuss about dev problems and solutions"
             />
-            <button type="submit" id="post-button">Post</button>
+            <button name="post" type="submit" id="post-button">Post</button>
           </div>
         </div>
       </form>
