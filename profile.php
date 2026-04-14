@@ -16,9 +16,55 @@
       $query2 = mysqli_query($con, $sql2);
       $posts_count = mysqli_num_rows($query2);
 
+      if(isset($_POST['add_friend'])) {
+        $my_id = $_SESSION["user_id"];
+          $sql = "INSERT INTO friend_requests (fr_receiver_id, fr_sender_id) VALUES ('$id', '$my_id')";
+          if(mysqli_query($con, $sql)) {
+            header("Location: profile.php?id=$id");
+          }
+      }
+
+      $sql3 = "SELECT * FROM friend_requests WHERE 	fr_receiver_id='$id' AND fr_sender_id='" . $_SESSION['user_id'] . "'";
+      $query3 = mysqli_query($con, $sql3);
+      $isFRSent = (mysqli_num_rows($query3) > 0) ? true : false;
+
+      $sql5 = "SELECT * FROM friend_requests WHERE 	fr_receiver_id='" . $_SESSION['user_id'] . "' AND fr_sender_id='$id'";
+      $query5 = mysqli_query($con, $sql5);
+      $isFRGot = (mysqli_num_rows($query5) > 0) ? true : false;
+
+      if(isset($_POST['cancel_friend_request'])) {
+        $my_id = $_SESSION["user_id"];
+        $sql = "DELETE FROM friend_requests WHERE fr_receiver_id='$id' AND fr_sender_id='$my_id'";
+        if(mysqli_query($con, $sql)) {
+          header("Location: profile.php?id=$id");
+        }
+      }
+
+      $sql4 = "SELECT * FROM friends WHERE 	fr_receiver_id='" . $_SESSION['user_id'] . "' AND fr_sender_id='$id' OR fr_receiver_id='$id' AND fr_sender_id='" . $_SESSION['user_id'] . "'";
+      $query4 = mysqli_query($con, $sql4);
+      $isFriend = (mysqli_num_rows($query4) > 0) ? true : false;
+
+      if(isset($_POST['accept_friend_request'])) {
+        $my_id = $_SESSION["user_id"];
+        $sql = "INSERT INTO friends (fr_receiver_id, fr_sender_id) VALUES ('$my_id', '$id')";
+        if(mysqli_query($con, $sql)) {
+          $sql = "DELETE FROM friend_requests WHERE fr_receiver_id='$my_id' AND fr_sender_id='$id'";
+          mysqli_query($con, $sql);
+          header("Location: profile.php?id=$id");
+        }
+      }
+
+      if(isset($_POST['reject_friend_request'])) {
+        $my_id = $_SESSION["user_id"];
+        $sql = "DELETE FROM friend_requests WHERE fr_receiver_id='$my_id' AND fr_sender_id='$id'";
+        if(mysqli_query($con, $sql)) {
+          header("Location: profile.php?id=$id");
+        }
+      }
+
     }else if(isset($_SESSION['username'])) {
       $row = $_SESSION['user'];
-            $sql2 = "SELECT * FROM posts WHERE author_id='" . $_SESSION['user_id'] . "' ORDER BY created_at DESC";
+      $sql2 = "SELECT * FROM posts WHERE author_id='" . $_SESSION['user_id'] . "' ORDER BY created_at DESC";
       $query2 = mysqli_query($con, $sql2);
       $posts_count = mysqli_num_rows($query2);
     }else{
@@ -91,13 +137,34 @@
         <div class="friends-summary">3 friends</div>
         <div class="posts-summary"><?php echo $posts_count; ?> posts</div>
       </div>
-      <?php if($id != $_SESSION['user_id'] && $id != null) { ?>
-      <div class="add-friend">
-        <button>Add Friend
-          <i class="fa-solid fa-plus"></i>
-        </button>
+      <?php if($id != $_SESSION['user_id'] && $id != null) {
+        if($isFRSent) { ?>
+          <div class="friend-request-sent">
+            <form method="POST" action="<?php echo $_SERVER['PHP_SELF'] . "?id=$id"; ?>">
+              <button name="cancel_friend_request" type="submit" class="fr_cancel_btn">Cancel Friend Request <i class="fa-solid fa-x"></i></button>
+            </form>
+          </div>
+<?php } else if($isFriend) { ?>
+      <div class="friend">
+        <button class="friend_btn">Friend <i class="fa-solid fa-check"></i></button>
       </div>
-      <?php } else { ?>
+<?php } else if($isFRGot){ ?>
+      <div class="respond-friend-request">
+        <form method="POST" action="<?php echo $_SERVER['PHP_SELF'] . "?id=$id"; ?>">
+          <button name="accept_friend_request" type="submit" class="fr_accept_btn">Accept <i class="fa-solid fa-check"></i></button>
+          <button name="reject_friend_request" type="submit" class="fr_reject_btn">Reject <i class="fa-solid fa-x"></i></button>
+        </form>
+      </div>
+<?php } else { ?>
+      <div class="add-friend">
+        <form method="POST" action="<?php echo $_SERVER['PHP_SELF'] . "?id=$id"; ?>">
+          <button name="add_friend" type="submit">Add Friend
+            <i class="fa-solid fa-plus"></i>
+          </button>
+        </form>
+      </div>
+
+      <?php } } else { ?>
       <div class="edit-profile">
         <button>Edit Profile <i class="fa-solid fa-pencil"></i></button>
       </div>

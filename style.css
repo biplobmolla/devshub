@@ -838,7 +838,11 @@ header ul li ul {
 }
 
 .add-friend button,
-.edit-profile button {
+.edit-profile button,
+.fr_cancel_btn,
+.fr_accept_btn,
+.fr_reject_btn,
+.friend_btn {
     background-color: #1877f2;
     color: #fff;
     border: none;
@@ -859,6 +863,47 @@ header ul li ul {
 
 .edit-profile button:hover {
     background-color: #13a9b0;
+}
+
+.fr_cancel_btn {
+    margin-top: 20px;
+    background-color: #dc3545;
+}
+
+.fr_cancel_btn:hover {
+    background-color: #c82333;
+}
+
+.fr_accept_btn {
+    margin-right: 10px;
+    background-color: #28a745;
+}
+
+.fr_accept_btn:hover {
+    background-color: #218838;
+}
+
+.fr_reject_btn {
+    background-color: #dc3545;
+}
+
+.fr_reject_btn:hover {
+    background-color: #c82333;
+}
+
+.respond-friend-request {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.friend_btn {
+    background-color: #28a745;
+    margin-top: 20px;
+    cursor: not-allowed;
+}
+
+.friend_btn:hover {
+    background-color: #218838;
 }
 
 .header-login,
