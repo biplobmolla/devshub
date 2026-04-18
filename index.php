@@ -1,5 +1,6 @@
 <?php
     include 'config.php';
+    include './utils/generateUID.php';
 
     session_start();
 
@@ -11,9 +12,23 @@
         $author_id = $_SESSION['user_id'];
         $fullname = $_SESSION['fullname'];
         $username = $_SESSION['username'];
+        $id = generateUniqueInt();
+        $is_done = false;
 
-        $sql = "INSERT INTO posts (description, author_id, fullname, username) VALUES ('$description', '$author_id', '$fullname', '$username')";
-        if(mysqli_query($con, $sql)) {
+        $sql = "INSERT INTO posts (id, description, author_id, fullname, username) VALUES ($id, '$description', '$author_id', '$fullname', '$username')";
+
+        $sql2 = "SELECT * FROM friends WHERE fr_sender_id=" . $_SESSION['user_id'] . " OR fr_receiver_id=" . $_SESSION['user_id'];
+        $query2 = mysqli_query($con, $sql2);
+
+        if(mysqli_num_rows($query2) > 0){
+          while($row2 = mysqli_fetch_assoc($query2)){
+            $friend_id = $row2['fr_sender_id'] == $_SESSION['user_id'] ? $row2['fr_receiver_id'] : $row2['fr_sender_id'];
+            $sql3 = "INSERT INTO notifications (notification_type, notification_receiver_id, notification_sender_id, notification_message, post_id) VALUES ('post', '$friend_id', '$author_id', 'posted something new.', $id)";
+            $query3 = mysqli_query($con, $sql3);
+            $is_done = true;
+          }
+        }
+        if(mysqli_query($con, $sql) && $is_done) {
             header("Location: index.php");
         }
     }
@@ -175,7 +190,7 @@
             if(mysqli_num_rows($query) > 0) {
                 while($row = mysqli_fetch_assoc($query)) {
           ?>
-          <li>
+          <li id="<?php echo $row['id'] ?>">
             <div class="post-item">
               <div class="post-header">
                 <div class="post-header-left">
