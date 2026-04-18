@@ -947,6 +947,8 @@ header ul li ul {
     display: flex;
     margin-top: 5px;
     color: black;
+    height: 100%;
+    width: 100%;
 }
 
 .notification {
@@ -958,6 +960,7 @@ header ul li ul {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     transition: 0.2s;
     background: #ccc;
+    cursor: pointer;
 }
 
 .notification-body .container ul li a .notification:hover {

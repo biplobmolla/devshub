@@ -92,7 +92,7 @@
               <li><a href="./profile.php?id=<?php echo $_SESSION['user_id']; ?>#my-posts">My posts</a></li>
               <li><a href="./profile.php?id=<?php echo $_SESSION['user_id']; ?>">Profile</a></li>
               <?php } ?>
-              <li><a href="./notifications.html">Notifications </a></li>
+              <li><a href="./notifications.php">Notifications </a></li>
         </ul>
       </nav>
     </aside>
