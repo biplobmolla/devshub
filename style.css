@@ -922,3 +922,82 @@ header ul li ul {
 .header-register:hover {
     background-color: #005ec3;
 }
+
+.notification-body {
+    padding: 30px;
+}
+
+.notification-body .container {
+    max-width: 420px;
+    margin: auto;
+}
+
+.notification-body .container h2 {
+    margin-bottom: 15px;
+}
+
+.notification-body .container ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-body .container ul li a {
+    text-decoration: none;
+    display: flex;
+    margin-top: 5px;
+    color: black;
+}
+
+.notification {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: 0.2s;
+    background: #ccc;
+}
+
+.notification-body .container ul li a .notification:hover {
+    background: #eef3ff;
+}
+
+.notification-body .container ul li a .icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #4a6cf7;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 18px;
+}
+
+.notification-body .container ul li a .content {
+    flex: 1;
+}
+
+.notification-body .container ul li a .title {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.notification-body .container ul li a .message {
+    font-size: 13px;
+    color: #555;
+}
+
+.notification-body .container ul li a .time {
+    font-size: 11px;
+    color: #999;
+    margin-top: 4px;
+}
+
+.notification-body .unread {
+    background: #fff;
+    border-left: 4px solid #4a6cf7;
+}
