@@ -39,7 +39,7 @@
             </div></a
           >
         </li>
-        <?php } } ?>
+        <?php } }else{ echo "<p>No notifications found.</p>"; } ?>
       </ul>
     </div>
   </body>
