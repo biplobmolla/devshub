@@ -10,10 +10,9 @@ let postOption = document.getElementById("post-option");
 let postMenuPanel = document.getElementById("post-menu-panel");
 let editPostBtn = document.getElementById("edit-post-btn");
 
-function openModalForEdit(id, text) {
+function openModalForEdit() {
     postModalTitle.textContent = "Edit Post";
     createPostButton.textContent = "Save";
-    postModalDescription.value = text;
     postModal.style.display = "block";
     document.body.classList.add("modal-open");
     console.log("Edit post with ID:", id, "and text:", text);
@@ -34,11 +33,6 @@ closeModalButton.onclick = function () {
 postOption.onclick = function (e) {
     postMenuPanel.style.display = postMenuPanel.style.display === "block" ? "none" : "block";
 };
-
-editPostBtn.onclick = function () {
-    openModalForEdit(1, "Sample post text");
-    postMenuPanel.style.display = "none";
-}
 
 function formHasErrors() {
     descriptionError.textContent = "";

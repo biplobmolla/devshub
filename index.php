@@ -53,25 +53,6 @@
   </head>
 
   <body>
-    <div class="container" id="post-modal">
-      <div id="close-button">x</div>
-      <h2 id="post-modal-title">Edit Post</h2>
-      <form id="postForm">
-        <div class="form-group">
-          <label for="post-modal-description">Post *</label>
-          <textarea
-            name="description"
-            id="post-modal-description"
-            maxlength="5000"
-            placeholder="Write something..."
-          ></textarea>
-          <div class="error" id="descError"></div>
-        </div>
-
-        <button type="submit" id="create-post-button">Save</button>
-      </form>
-    </div>
-
     <header>
       <ul>
         <li>
@@ -212,12 +193,15 @@
                         type="button"
                         class="post-edit"
                         id="edit-post-btn"
+                        onClick="openModalForEdit(<?php echo $row['id']; ?>, '<?php echo addslashes($row['description']); ?>')"
                       >
                         Edit
                       </button>
                       <form
                         class="post-delete-form"
-                        onsubmit="return confirm('Delete this post?');"
+                        action="delete_post.php?id=<?php echo $row['id']; ?>"
+                        method="post"
+                        onsubmit="return confirm('Are you sure you want to delete this post?');"
                       >
                         <button type="submit" class="post-delete">
                           Delete
@@ -229,6 +213,39 @@
               </div>
               <p class="post-content"><?php echo $row['description']; ?></p>
             </div>
+            <?php if($_SESSION['user_id'] == $row['author_id']) { ?>
+            <div class="container" id="post-modal">
+              <div id="close-button">x</div>
+              <h2 id="post-modal-title">Edit Post</h2>
+              <form id="postForm" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+                <?php
+                  if(isset($_SESSION['username']) && isset($_POST['edit_post'])) {
+                    $description = $_POST['description'];
+                    $post_id = $row['id'];
+
+                    $sql = "UPDATE posts SET description='$description' WHERE id=$post_id";
+
+                    if(mysqli_query($con, $sql)) {
+                      header("Location: index.php");
+                    }
+                  }
+                
+                ?>
+                <div class="form-group">
+                  <label for="post-modal-description">Post *</label>
+                  <textarea
+                    name="description"
+                    id="post-modal-description"
+                    maxlength="5000"
+                    placeholder="Write something..."
+                  ><?php echo $row['description']; ?></textarea>
+                  <div class="error" id="descError"></div>
+                </div>
+
+                <button type="submit" name="edit_post" id="create-post-button">Save</button>
+              </form>
+            </div>
+            <?php } ?>
           </li>
           <?php
                 }
