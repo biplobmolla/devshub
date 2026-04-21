@@ -844,7 +844,8 @@ header ul li ul {
 .fr_cancel_btn,
 .fr_accept_btn,
 .fr_reject_btn,
-.friend_btn {
+.friend_btn,
+.unfriend_btn {
     background-color: #1877f2;
     color: #fff;
     border: none;
@@ -900,12 +901,27 @@ header ul li ul {
 
 .friend_btn {
     background-color: #28a745;
-    margin-top: 20px;
     cursor: not-allowed;
 }
 
 .friend_btn:hover {
     background-color: #218838;
+}
+
+.unfriend_btn {
+    background-color: #fb1dff;
+}
+
+.unfriend_btn:hover {
+    background-color: #b009b3;
+}
+
+.friend {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    column-gap: 20px;
 }
 
 .header-login,

@@ -68,6 +68,14 @@
         }
       }
 
+      if(isset($_POST['unfriend'])) {
+        $my_id = $_SESSION["user_id"];
+        $sql = "DELETE FROM friends WHERE fr_receiver_id='$id' AND fr_sender_id='$my_id' OR fr_receiver_id='$my_id' AND fr_sender_id='$id'";
+        if(mysqli_query($con, $sql)) {
+          header("Location: profile.php?id=$id");
+        }
+      }
+
     }else if(isset($_SESSION['username'])) {
       $row = $_SESSION['user'];
       $sql2 = "SELECT * FROM posts WHERE author_id='" . $_SESSION['user_id'] . "' ORDER BY created_at DESC";
@@ -153,6 +161,9 @@
 <?php } else if($isFriend) { ?>
       <div class="friend">
         <button class="friend_btn">Friend <i class="fa-solid fa-check"></i></button>
+        <form action="<?php echo $_SERVER['PHP_SELF'] . "?id=$id"; ?>" method="post">
+          <button onClick="return confirm('Are you sure you want to unfriend this user?');" class="unfriend_btn" name="unfriend" type="submit">Unfriend <i class="fa-solid fa-x"></i></button>
+        </form>
       </div>
 <?php } else if($isFRGot){ ?>
       <div class="respond-friend-request">
