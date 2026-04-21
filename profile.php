@@ -52,7 +52,7 @@
       if(isset($_POST['accept_friend_request'])) {
         $my_id = $_SESSION["user_id"];
         $sql = "INSERT INTO friends (fr_receiver_id, fr_sender_id) VALUES ('$my_id', '$id')";
-        $sql2 = "INSERT INTO notifications (notification_type, notification_receiver_id, notification_sender_id, notification_message) VALUES ('friend_request_accepted', '$id', '$my_id', 'accepted your friend request')";
+        $sql2 = "INSERT INTO notifications (notification_type, notification_receiver_id, notification_sender_id, notification_message) VALUES ('friend_request', '$id', '$my_id', 'accepted your friend request')";
         if(mysqli_query($con, $sql) && mysqli_query($con, $sql2)) {
           $sql = "DELETE FROM friend_requests WHERE fr_receiver_id='$my_id' AND fr_sender_id='$id'";
           mysqli_query($con, $sql);
