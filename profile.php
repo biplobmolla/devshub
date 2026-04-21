@@ -148,7 +148,7 @@
         <p class="profile-bio">Web developer and tech enthusiast.</p>
       </div>
       <div class="summary">
-        <div class="friends-summary"><?php echo $friends_count; ?> friends</div>
+        <a href="./friends.php?id=<?php echo $id; ?>" class="friends-summary"><?php echo $friends_count; ?> friends</a>
         <div class="posts-summary"><?php echo $posts_count; ?> posts</div>
       </div>
       <?php if($id != $_SESSION['user_id'] && $id != null) {

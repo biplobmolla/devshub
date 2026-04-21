@@ -96,6 +96,7 @@
             if(isset($_SESSION['username'])) { ?>
               <li><a href="./profile.php?id=<?php echo $_SESSION['user_id']; ?>#my-posts">My posts</a></li>
               <li><a href="./profile.php?id=<?php echo $_SESSION['user_id']; ?>">Profile</a></li>
+              <li><a href="./friends.php?id=<?php echo $_SESSION['user_id']; ?>">Friends</a></li>
               <?php } ?>
               <li><a href="./notifications.php">Notifications <?php if($unread_count > 0) { echo "<span class='unread-count'>{$unread_count}</span>"; } ?></a></li>
         </ul>

@@ -95,6 +95,11 @@ header ul li ul {
     display: flex;
 }
 
+.friends-summary {
+    color: #007bff;
+    text-decoration: none;
+}
+
 .left-sidebar {
     width: 240px;
     background: #f4f5f7;
@@ -1028,4 +1033,72 @@ header ul li ul {
     padding: 2px 6px;
     border-radius: 12px;
     margin-left: 8px;
+}
+
+.friends-container {
+    width: 500px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow-y: auto;
+    height: 400px;
+
+}
+
+.friends-container .header {
+    background: #4a6cf7;
+    color: white;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.friends-container .friend {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    transition: background 0.2s;
+}
+
+.friends-container .friend:hover {
+    background: #f9fafc;
+}
+
+.friends-container .avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    margin-right: 12px;
+}
+
+.friends-container .info {
+    flex: 1;
+}
+
+.friends-container .name {
+    font-weight: bold;
+    font-size: 14px;
+    text-decoration: none;
+    color: black;
+}
+
+.friends-container .status {
+    font-size: 12px;
+    color: #777;
+}
+
+.friends-container .online {
+    color: green;
+    font-weight: bold;
+}
+
+.friends-container .offline {
+    color: red;
+    font-weight: bold;
 }
