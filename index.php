@@ -4,32 +4,48 @@
 
     session_start();
 
+    $post_errors = [];
+    $post_description = '';
+
     $sql = "SELECT * FROM posts ORDER BY created_at DESC";
     $query = mysqli_query($con, $sql);
 
     if(isset($_SESSION['username']) && isset($_POST['post'])) {
-        $description = $_POST['description'];
-        $author_id = $_SESSION['user_id'];
-        $fullname = $_SESSION['fullname'];
-        $username = $_SESSION['username'];
-        $id = generateUniqueInt();
-        $is_done = false;
+        $post_description = trim($_POST['description'] ?? '');
 
-        $sql = "INSERT INTO posts (id, description, author_id, fullname, username) VALUES ($id, '$description', '$author_id', '$fullname', '$username')";
-
-        $sql2 = "SELECT * FROM friends WHERE fr_sender_id=" . $_SESSION['user_id'] . " OR fr_receiver_id=" . $_SESSION['user_id'];
-        $query2 = mysqli_query($con, $sql2);
-
-        if(mysqli_num_rows($query2) > 0){
-          while($row2 = mysqli_fetch_assoc($query2)){
-            $friend_id = $row2['fr_sender_id'] == $_SESSION['user_id'] ? $row2['fr_receiver_id'] : $row2['fr_sender_id'];
-            $sql3 = "INSERT INTO notifications (notification_type, notification_receiver_id, notification_sender_id, notification_message, post_id) VALUES ('post', '$friend_id', '$author_id', 'posted something new.', $id)";
-            $query3 = mysqli_query($con, $sql3);
-            $is_done = true;
-          }
+        if($post_description === '') {
+            $post_errors[] = 'Post content cannot be empty.';
+        } elseif(strlen($post_description) < 2) {
+            $post_errors[] = 'Post content must be at least 2 characters long.';
+        } elseif(strlen($post_description) > 5000) {
+            $post_errors[] = 'Post content cannot exceed 5000 characters.';
         }
-        if(mysqli_query($con, $sql) && $is_done) {
-            header("Location: index.php");
+
+        if(empty($post_errors)) {
+            $description = mysqli_real_escape_string($con, $post_description);
+            $author_id = $_SESSION['user_id'];
+            $fullname = mysqli_real_escape_string($con, $_SESSION['fullname']);
+            $username = mysqli_real_escape_string($con, $_SESSION['username']);
+            $id = generateUniqueInt();
+
+            $sql = "INSERT INTO posts (id, description, author_id, fullname, username) VALUES ($id, '$description', '$author_id', '$fullname', '$username')";
+
+            if(mysqli_query($con, $sql)) {
+                $sql2 = "SELECT * FROM friends WHERE fr_sender_id=" . $_SESSION['user_id'] . " OR fr_receiver_id=" . $_SESSION['user_id'];
+                $query2 = mysqli_query($con, $sql2);
+
+                if($query2 && mysqli_num_rows($query2) > 0){
+                  while($row2 = mysqli_fetch_assoc($query2)){
+                    $friend_id = $row2['fr_sender_id'] == $_SESSION['user_id'] ? $row2['fr_receiver_id'] : $row2['fr_sender_id'];
+                    $sql3 = "INSERT INTO notifications (notification_type, notification_receiver_id, notification_sender_id, notification_message, post_id) VALUES ('post', '$friend_id', '$author_id', 'posted something new.', $id)";
+                    mysqli_query($con, $sql3);
+                  }
+                }
+                header("Location: index.php");
+                exit();
+            } else {
+                $post_errors[] = 'Could not publish the post. Please try again.';
+            }
         }
     }
 
@@ -147,7 +163,21 @@
     </aside>
     <section class="posts">
       <?php if(isset($_SESSION['username'])) { ?>
-      <form method="post" class="quick-post-form">
+      <?php if(!empty($post_errors)): ?>
+        <div class="form-errors <?php echo count($post_errors) === 1 ? 'form-errors-single' : ''; ?>">
+          <?php if(count($post_errors) > 1): ?>
+            <span class="form-errors-title">Please fix the following:</span>
+            <ul>
+              <?php foreach($post_errors as $err): ?>
+                <li><?php echo htmlspecialchars($err); ?></li>
+              <?php endforeach; ?>
+            </ul>
+          <?php else: ?>
+            <?php echo htmlspecialchars($post_errors[0]); ?>
+          <?php endif; ?>
+        </div>
+      <?php endif; ?>
+      <form method="post" class="quick-post-form" novalidate>
         <div class="create-post">
           <div class="profile-icon">
             <img src="./images/profile-icon.png" alt="Profile Icon" />
@@ -158,8 +188,9 @@
               name="description"
               id="post-description"
               maxlength="5000"
-              required
+              value="<?php echo htmlspecialchars($post_description); ?>"
               placeholder="Discuss about dev problems and solutions"
+              class="<?php echo !empty($post_errors) ? 'field-invalid' : ''; ?>"
             />
             <button name="post" type="submit" id="post-button">Post</button>
           </div>
@@ -221,16 +252,19 @@
               <form id="postForm" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
                 <?php
                   if(isset($_SESSION['username']) && isset($_POST['edit_post'])) {
-                    $description = $_POST['description'];
+                    $edit_description = trim($_POST['description'] ?? '');
                     $post_id = $row['id'];
 
-                    $sql = "UPDATE posts SET description='$description' WHERE id=$post_id";
+                    if($edit_description !== '' && strlen($edit_description) <= 5000) {
+                      $safe_description = mysqli_real_escape_string($con, $edit_description);
+                      $sql = "UPDATE posts SET description='$safe_description' WHERE id=$post_id";
 
-                    if(mysqli_query($con, $sql)) {
-                      header("Location: index.php");
+                      if(mysqli_query($con, $sql)) {
+                        header("Location: index.php");
+                        exit();
+                      }
                     }
                   }
-                
                 ?>
                 <div class="form-group">
                   <label for="post-modal-description">Post *</label>
