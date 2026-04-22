@@ -330,10 +330,18 @@
         <li>
           <ul>
             <li>
-              <div class="search-bar">
-                <input type="text" placeholder="Search..." />
-                <img src="./images/search-icon.png" alt="Search Icon" />
-              </div>
+              <form class="search-bar" action="index.php" method="get" role="search">
+                <input
+                  type="text"
+                  name="search"
+                  id="search-input"
+                  placeholder="Search posts..."
+                  autocomplete="off"
+                />
+                <button type="submit" class="search-submit" aria-label="Search">
+                  <img src="./images/search-icon.png" alt="" />
+                </button>
+              </form>
             </li>
             <li class="header-auth">
               <span class="header-username"><?php echo htmlspecialchars($_SESSION['fullname'] ?? ''); ?></span>

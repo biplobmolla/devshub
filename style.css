@@ -76,6 +76,35 @@ header ul li ul {
     height: 20px;
 }
 
+.search-submit {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.15s ease;
+}
+
+.search-submit:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.search-submit img {
+    position: static;
+    margin: 0;
+    width: 20px;
+    height: 20px;
+}
+
 .profile-icon {
     width: 40px;
     height: 40px;
@@ -450,6 +479,56 @@ header ul li ul {
 .quick-post-form {
     width: 100%;
     margin-bottom: 20px;
+}
+
+.search-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid #d9e2f1;
+    border-left: 4px solid #007bff;
+    padding: 12px 14px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+    font-size: 14px;
+    color: #333;
+}
+
+.search-indicator strong {
+    color: #0056b3;
+}
+
+.search-indicator .search-count {
+    color: #777;
+    font-size: 13px;
+    margin-left: 4px;
+}
+
+.search-indicator .search-clear {
+    flex-shrink: 0;
+    padding: 5px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f5f5f5;
+    color: #444;
+    text-decoration: none;
+    font-size: 13px;
+    transition: background 0.15s ease;
+}
+
+.search-indicator .search-clear:hover {
+    background: #e9ecef;
+}
+
+.no-posts {
+    background: #fff;
+    padding: 16px;
+    border: 1px dashed #ccc;
+    border-radius: 6px;
+    color: #666;
+    text-align: center;
 }
 
 .create-post {

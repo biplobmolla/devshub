@@ -8,8 +8,16 @@
     $post_errors = [];
     $post_description = '';
 
-    $sql = "SELECT * FROM posts ORDER BY created_at DESC";
+    $search_query = trim($_GET['search'] ?? '');
+
+    if($search_query !== '') {
+        $safe_search = mysqli_real_escape_string($con, $search_query);
+        $sql = "SELECT * FROM posts WHERE description LIKE '%$safe_search%' OR fullname LIKE '%$safe_search%' OR username LIKE '%$safe_search%' ORDER BY created_at DESC";
+    } else {
+        $sql = "SELECT * FROM posts ORDER BY created_at DESC";
+    }
     $query = mysqli_query($con, $sql);
+    $results_count = $query ? mysqli_num_rows($query) : 0;
 
     if(isset($_SESSION['username']) && isset($_POST['post'])) {
         $post_description = trim($_POST['description'] ?? '');
@@ -78,10 +86,19 @@
         <li>
           <ul>
             <li>
-              <div class="search-bar">
-                <input type="text" placeholder="Search..." />
-                <img src="./images/search-icon.png" alt="Search Icon" />
-              </div>
+              <form class="search-bar" action="index.php" method="get" role="search">
+                <input
+                  type="text"
+                  name="search"
+                  id="search-input"
+                  placeholder="Search posts..."
+                  value="<?php echo htmlspecialchars($search_query); ?>"
+                  autocomplete="off"
+                />
+                <button type="submit" class="search-submit" aria-label="Search">
+                  <img src="./images/search-icon.png" alt="" />
+                </button>
+              </form>
             </li>
             <?php if(isset($_SESSION['username'])) { ?>
             <li class="header-auth">
@@ -198,10 +215,19 @@
         </div>
       </form>
       <?php } ?>
+      <?php if($search_query !== ''): ?>
+        <div class="search-indicator">
+          <div>
+            Showing results for <strong>&ldquo;<?php echo htmlspecialchars($search_query); ?>&rdquo;</strong>
+            <span class="search-count">(<?php echo $results_count; ?> <?php echo $results_count === 1 ? 'post' : 'posts'; ?>)</span>
+          </div>
+          <a href="index.php" class="search-clear">Clear</a>
+        </div>
+      <?php endif; ?>
       <div class="posts-list" id="posts-list">
         <ul id="post">
           <?php
-            if(mysqli_num_rows($query) > 0) {
+            if($query && mysqli_num_rows($query) > 0) {
                 while($row = mysqli_fetch_assoc($query)) {
           ?>
           <li id="<?php echo $row['id'] ?>">
@@ -286,7 +312,11 @@
           <?php
                 }
             } else {
-                echo "<li>No posts found.</li>";
+                if($search_query !== '') {
+                    echo "<li class='no-posts'>No posts match your search.</li>";
+                } else {
+                    echo "<li class='no-posts'>No posts found.</li>";
+                }
             }
           ?>
         </ul>
