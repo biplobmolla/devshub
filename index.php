@@ -1,6 +1,7 @@
 <?php
     include 'config.php';
     include './utils/generateUID.php';
+    include './utils/timeAgo.php';
 
     session_start();
 
@@ -213,7 +214,7 @@
                   <a href="profile.php?id=<?php echo $row['author_id']; ?>" class="post-author"><?php echo $row['fullname']; ?></a>
                 </div>
                 <div class="post-header-right">
-                  <span class="post-time"><?php echo $row['created_at']; ?></span>
+                  <span class="post-time" title="<?php echo htmlspecialchars($row['created_at']); ?>"><?php echo timeAgo($row['created_at'], $con); ?></span>
                   <details class="post-menu">
                     <summary
                       class="post-menu-summary"

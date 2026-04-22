@@ -1,5 +1,6 @@
 <?php
     include "config.php";
+    include "./utils/timeAgo.php";
 
     session_start();
 
@@ -413,7 +414,7 @@
                   <a href="profile.php?id=<?php echo $posts_row['author_id']; ?>" class="post-author"><?php echo htmlspecialchars($posts_row['fullname']); ?></a>
                 </div>
                 <div class="post-header-right">
-                  <span class="post-time">3 minutes ago</span>
+                  <span class="post-time" title="<?php echo htmlspecialchars($posts_row['created_at'] ?? ''); ?>"><?php echo timeAgo($posts_row['created_at'] ?? '', $con); ?></span>
                   <details class="post-menu">
                     <summary
                       class="post-menu-summary"

@@ -1,5 +1,6 @@
 <?php
   include "config.php";
+  include "./utils/timeAgo.php";
 
   session_start();
 
@@ -35,7 +36,7 @@
             <div class="content">
               <div class="title"><?php echo $sender_info['fullname']; ?></div>
               <div class="message"><?php echo $row['notification_message']; ?></div>
-              <div class="time">2 mins ago</div>
+              <div class="time" title="<?php echo htmlspecialchars($row['created_at'] ?? ''); ?>"><?php echo timeAgo($row['created_at'] ?? '', $con); ?></div>
             </div></a
           >
         </li>
