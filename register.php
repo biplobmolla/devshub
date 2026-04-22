@@ -61,7 +61,8 @@
         if(empty($errors)) {
             $safe_fullname = mysqli_real_escape_string($con, "$fname $lname");
             $safe_username = mysqli_real_escape_string($con, $username);
-            $safe_password = mysqli_real_escape_string($con, $password);
+            $hashed_password = md5($password);
+            $safe_password = mysqli_real_escape_string($con, $hashed_password);
 
             $sql2 = "INSERT INTO users (fullname, username, password) VALUES ('$safe_fullname', '$safe_username', '$safe_password')";
             if(mysqli_query($con, $sql2)) {

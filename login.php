@@ -26,7 +26,8 @@
 
     if(empty($errors)) {
       $safe_username = mysqli_real_escape_string($con, $username);
-      $safe_password = mysqli_real_escape_string($con, $password);
+      $hashed_password = md5($password);
+      $safe_password = mysqli_real_escape_string($con, $hashed_password);
 
       $sql = "SELECT * FROM users WHERE username='$safe_username' AND password='$safe_password'";
       $query = mysqli_query($con, $sql);

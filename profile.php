@@ -82,8 +82,8 @@
           if($current_password === '') {
             $profile_errors[] = 'Current password is required to change your password.';
           } else {
-            $safe_curr = mysqli_real_escape_string($con, $current_password);
             $my_id = (int) $_SESSION['user_id'];
+            $safe_curr = mysqli_real_escape_string($con, md5($current_password));
             $pw_check = mysqli_query($con, "SELECT id FROM users WHERE id=$my_id AND password='$safe_curr'");
             if(!$pw_check || mysqli_num_rows($pw_check) === 0) {
               $profile_errors[] = 'Current password is incorrect.';
@@ -116,7 +116,8 @@
             $set_parts[] = "bio='$safe_bio'";
           }
           if($change_password) {
-            $safe_pw = mysqli_real_escape_string($con, $new_password);
+            $hashed_new = md5($new_password);
+            $safe_pw = mysqli_real_escape_string($con, $hashed_new);
             $set_parts[] = "password='$safe_pw'";
           }
           $update_sql = "UPDATE users SET " . implode(', ', $set_parts) . " WHERE id=$my_id";
