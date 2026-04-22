@@ -12,9 +12,9 @@
 
     if($search_query !== '') {
         $safe_search = mysqli_real_escape_string($con, $search_query);
-        $sql = "SELECT * FROM posts WHERE description LIKE '%$safe_search%' OR fullname LIKE '%$safe_search%' OR username LIKE '%$safe_search%' ORDER BY created_at DESC";
+        $sql = "SELECT posts.*, users.profile_image FROM posts LEFT JOIN users ON posts.author_id = users.id WHERE posts.description LIKE '%$safe_search%' OR posts.fullname LIKE '%$safe_search%' OR posts.username LIKE '%$safe_search%' ORDER BY posts.created_at DESC";
     } else {
-        $sql = "SELECT * FROM posts ORDER BY created_at DESC";
+        $sql = "SELECT posts.*, users.profile_image FROM posts LEFT JOIN users ON posts.author_id = users.id ORDER BY posts.created_at DESC";
     }
     $query = mysqli_query($con, $sql);
     $results_count = $query ? mysqli_num_rows($query) : 0;
@@ -109,7 +109,7 @@
                 class="profile-icon"
                 aria-label="Your profile"
               >
-                <img src="./images/profile-icon.png" alt="" />
+                <img src="<?php echo profile_image_url($_SESSION['user']['profile_image'] ?? ''); ?>" alt="" />
               </a>
             </li>
             <?php } else { ?>
@@ -198,7 +198,7 @@
       <form method="post" class="quick-post-form" novalidate>
         <div class="create-post">
           <div class="profile-icon">
-            <img src="./images/profile-icon.png" alt="Profile Icon" />
+            <img src="<?php echo profile_image_url($_SESSION['user']['profile_image'] ?? ''); ?>" alt="Profile Icon" />
           </div>
           <div class="post-input">
             <input
@@ -235,7 +235,7 @@
               <div class="post-header">
                 <div class="post-header-left">
                   <div class="profile-icon">
-                    <img src="./images/profile-icon.png" alt="Profile Icon" />
+                    <img src="<?php echo profile_image_url($row['profile_image'] ?? ''); ?>" alt="Profile Icon" />
                   </div>
                   <a href="profile.php?id=<?php echo $row['author_id']; ?>" class="post-author"><?php echo $row['fullname']; ?></a>
                 </div>

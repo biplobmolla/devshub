@@ -29,7 +29,7 @@
         $user = mysqli_fetch_assoc($query2);
 ?>
   <div class="friend">
-    <img src="./images/profile-icon.png" class="avatar">
+    <img src="<?php echo profile_image_url($user['profile_image'] ?? ''); ?>" class="avatar">
     <div class="info">
       <a class="name" href="profile.php?id=<?php echo $user['id'] ?>"><?php echo $user['fullname'] ?></a>
       <div class="status <?php echo $user["status"] ?>"><?php echo $user["status"] ?></div>

@@ -106,6 +106,24 @@
           }
         }
 
+        $new_profile_image_filename = null;
+
+        if(empty($profile_errors) && !empty($_FILES['profile_image']['name'])) {
+          $ext = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
+          $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+          if(!in_array($ext, $allowed)) {
+            $profile_errors[] = 'Please upload a valid image (JPG, PNG, GIF, or WEBP).';
+          } else {
+            $new_name = time() . '_' . (int) $_SESSION['user_id'] . '.' . $ext;
+            if(move_uploaded_file($_FILES['profile_image']['tmp_name'], 'uploads/profiles/' . $new_name)) {
+              $new_profile_image_filename = $new_name;
+            } else {
+              $profile_errors[] = 'Failed to upload image.';
+            }
+          }
+        }
+
         if(empty($profile_errors)) {
           $safe_fullname = mysqli_real_escape_string($con, $new_fullname);
           $safe_username = mysqli_real_escape_string($con, $new_username);
@@ -120,6 +138,10 @@
             $hashed_new = md5($new_password);
             $safe_pw = mysqli_real_escape_string($con, $hashed_new);
             $set_parts[] = "password='$safe_pw'";
+          }
+          if($new_profile_image_filename !== null) {
+            $safe_img = mysqli_real_escape_string($con, $new_profile_image_filename);
+            $set_parts[] = "profile_image='$safe_img'";
           }
           $update_sql = "UPDATE users SET " . implode(', ', $set_parts) . " WHERE id=$my_id";
 
@@ -265,7 +287,26 @@
         </div>
       <?php endif; ?>
 
-      <form method="post" action="profile.php?id=<?php echo htmlspecialchars($id); ?>" novalidate>
+      <form method="post" action="profile.php?id=<?php echo htmlspecialchars($id); ?>" enctype="multipart/form-data" novalidate>
+        <div class="form-group profile-image-group">
+          <label>Profile image</label>
+          <div class="profile-image-picker">
+            <img id="profile-image-preview" src="<?php echo profile_image_url($row['profile_image'] ?? ''); ?>" alt="Current profile image" />
+            <div class="profile-image-actions">
+              <label for="edit-profile-image" class="profile-image-upload-btn">
+                <i class="fa-solid fa-camera"></i> Choose image
+              </label>
+              <small class="field-hint">JPG, PNG, GIF, or WEBP.</small>
+            </div>
+            <input
+              type="file"
+              name="profile_image"
+              id="edit-profile-image"
+              accept="image/png,image/jpeg,image/gif,image/webp"
+            />
+          </div>
+        </div>
+
         <div class="form-group">
           <label for="edit-fullname">Full name</label>
           <input
@@ -347,7 +388,7 @@
               <span class="header-username"><?php echo htmlspecialchars($_SESSION['fullname'] ?? ''); ?></span>
               <a class="header-logout" href="logout.php">Log out</a>
               <a href="./profile.php?id=<?php echo $_SESSION['user_id'] ?? ''; ?>" class="profile-icon" aria-label="Your profile">
-                <img src="./images/profile-icon.png" alt="" />
+                <img src="<?php echo profile_image_url($_SESSION['user']['profile_image'] ?? ''); ?>" alt="" />
               </a>
             </li>
           </ul>
@@ -356,7 +397,7 @@
     </header>
     <div class="upper-section">
       <div class="profile-user-icon">
-        <img src="./images/profile-icon.png" alt="Profile Icon" />
+        <img src="<?php echo profile_image_url($row['profile_image'] ?? ''); ?>" alt="Profile Icon" />
       </div>
       <div>
         <h1 class="profile-name"><?php echo htmlspecialchars($row['fullname'] ?? ''); ?></h1>
@@ -417,7 +458,7 @@
               <div class="post-header">
                 <div class="post-header-left">
                   <div class="profile-icon">
-                    <img src="./images/profile-icon.png" alt="Profile Icon" />
+                    <img src="<?php echo profile_image_url($row['profile_image'] ?? ''); ?>" alt="Profile Icon" />
                   </div>
                   <a href="profile.php?id=<?php echo $posts_row['author_id']; ?>" class="post-author"><?php echo htmlspecialchars($posts_row['fullname']); ?></a>
                 </div>
@@ -485,6 +526,18 @@
             closeModal();
           }
         });
+
+        const imgInput = document.getElementById("edit-profile-image");
+        const imgPreview = document.getElementById("profile-image-preview");
+        if (imgInput && imgPreview) {
+          imgInput.addEventListener("change", function () {
+            const file = this.files && this.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (ev) { imgPreview.src = ev.target.result; };
+            reader.readAsDataURL(file);
+          });
+        }
       })();
     </script>
     <?php endif; ?>
