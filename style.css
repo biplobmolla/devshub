@@ -223,18 +223,79 @@ header ul li ul {
     display: none;
     background: #fff;
     padding: 24px 24px 20px;
-    width: 420px;
+    width: 460px;
     max-width: calc(100vw - 32px);
     max-height: calc(100vh - 48px);
     overflow-y: auto;
     border: 1px solid #ccc;
-    border-radius: 6px;
+    border-radius: 10px;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 200;
     box-sizing: border-box;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+.profile-edit-modal.is-open {
+    display: block;
+    animation: modal-in 0.2s ease-out;
+}
+
+@keyframes modal-in {
+    from { opacity: 0; transform: translate(-50%, -48%); }
+    to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+.profile-edit-modal textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    height: 72px;
+    box-sizing: border-box;
+}
+
+.profile-edit-modal .field-hint {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #777;
+}
+
+.profile-edit-modal .field-hint code {
+    background: #f0f0f0;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+.profile-edit-modal .password-section {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+}
+
+.profile-edit-modal .password-section h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #444;
+    margin-bottom: 10px;
+}
+
+.profile-edit-modal .password-section h3 .optional-label {
+    font-weight: 400;
+    color: #888;
+    font-size: 12px;
+    margin-left: 4px;
+}
+
+.profile-edit-modal .profile-edit-submit:hover {
+    background: #0069d9;
 }
 
 .profile-edit-modal .form-group {

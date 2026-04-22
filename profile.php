@@ -3,13 +3,26 @@
 
     session_start();
 
-    $id = $_GET['id'];
+    $id = $_GET['id'] ?? null;
     $row = null;
     $posts_count = 0;
+    $isFRSent = false;
+    $isFRGot = false;
+    $isFriend = false;
+
+    $profile_errors = [];
+    $profile_edit_values = null;
+    $open_edit_modal = false;
+
+    $has_bio_col = false;
+    $col_check = mysqli_query($con, "SHOW COLUMNS FROM users LIKE 'bio'");
+    if($col_check && mysqli_num_rows($col_check) > 0) {
+        $has_bio_col = true;
+    }
 
     $sql = "SELECT * FROM friends WHERE fr_receiver_id='" . $id . "' OR fr_sender_id='" . $id . "'";
     $query = mysqli_query($con, $sql);
-    $friends_count = mysqli_num_rows($query);
+    $friends_count = $query ? mysqli_num_rows($query) : 0;
 
     if($id){
       $sql = "SELECT * FROM users WHERE id='$id'";
@@ -20,6 +33,115 @@
       $query2 = mysqli_query($con, $sql2);
       $posts_count = mysqli_num_rows($query2);
 
+      if(isset($_POST['edit_profile']) && isset($_SESSION['user_id']) && $id == $_SESSION['user_id']) {
+        $new_fullname = trim($_POST['fullname'] ?? '');
+        $new_username = trim($_POST['username'] ?? '');
+        $new_bio = trim($_POST['bio'] ?? '');
+        $current_password = $_POST['current_password'] ?? '';
+        $new_password = $_POST['new_password'] ?? '';
+        $confirm_new_password = $_POST['confirm_new_password'] ?? '';
+
+        $profile_edit_values = [
+          'fullname' => $new_fullname,
+          'username' => $new_username,
+          'bio' => $new_bio,
+        ];
+
+        if($new_fullname === '') {
+          $profile_errors[] = 'Full name is required.';
+        } elseif(strlen($new_fullname) > 255) {
+          $profile_errors[] = 'Full name must be 255 characters or fewer.';
+        }
+
+        if($new_username === '') {
+          $profile_errors[] = 'Username is required.';
+        } elseif(strlen($new_username) < 3) {
+          $profile_errors[] = 'Username must be at least 3 characters long.';
+        } elseif(strlen($new_username) > 64) {
+          $profile_errors[] = 'Username must be 64 characters or fewer.';
+        } elseif(!preg_match('/^[A-Za-z0-9_]+$/', $new_username)) {
+          $profile_errors[] = 'Username can only contain letters, numbers, and underscores.';
+        }
+
+        if(strlen($new_bio) > 255) {
+          $profile_errors[] = 'Bio cannot exceed 255 characters.';
+        }
+
+        if(empty($profile_errors) && $new_username !== $_SESSION['username']) {
+          $safe_username = mysqli_real_escape_string($con, $new_username);
+          $my_id = (int) $_SESSION['user_id'];
+          $check_sql = "SELECT id FROM users WHERE username='$safe_username' AND id != $my_id";
+          $check_query = mysqli_query($con, $check_sql);
+          if($check_query && mysqli_num_rows($check_query) > 0) {
+            $profile_errors[] = 'This username is already taken.';
+          }
+        }
+
+        $change_password = ($current_password !== '' || $new_password !== '' || $confirm_new_password !== '');
+        if($change_password) {
+          if($current_password === '') {
+            $profile_errors[] = 'Current password is required to change your password.';
+          } else {
+            $safe_curr = mysqli_real_escape_string($con, $current_password);
+            $my_id = (int) $_SESSION['user_id'];
+            $pw_check = mysqli_query($con, "SELECT id FROM users WHERE id=$my_id AND password='$safe_curr'");
+            if(!$pw_check || mysqli_num_rows($pw_check) === 0) {
+              $profile_errors[] = 'Current password is incorrect.';
+            }
+          }
+
+          if($new_password === '') {
+            $profile_errors[] = 'New password is required.';
+          } elseif(strlen($new_password) < 6) {
+            $profile_errors[] = 'New password must be at least 6 characters long.';
+          } elseif(strlen($new_password) > 72) {
+            $profile_errors[] = 'New password must be 72 characters or fewer.';
+          }
+
+          if($confirm_new_password === '') {
+            $profile_errors[] = 'Please confirm your new password.';
+          } elseif($new_password !== $confirm_new_password) {
+            $profile_errors[] = 'New passwords do not match.';
+          }
+        }
+
+        if(empty($profile_errors)) {
+          $safe_fullname = mysqli_real_escape_string($con, $new_fullname);
+          $safe_username = mysqli_real_escape_string($con, $new_username);
+          $safe_bio = mysqli_real_escape_string($con, $new_bio);
+          $my_id = (int) $_SESSION['user_id'];
+
+          $set_parts = ["fullname='$safe_fullname'", "username='$safe_username'"];
+          if($has_bio_col) {
+            $set_parts[] = "bio='$safe_bio'";
+          }
+          if($change_password) {
+            $safe_pw = mysqli_real_escape_string($con, $new_password);
+            $set_parts[] = "password='$safe_pw'";
+          }
+          $update_sql = "UPDATE users SET " . implode(', ', $set_parts) . " WHERE id=$my_id";
+
+          if(mysqli_query($con, $update_sql)) {
+            mysqli_query($con, "UPDATE posts SET fullname='$safe_fullname', username='$safe_username' WHERE author_id=$my_id");
+
+            $_SESSION['fullname'] = $new_fullname;
+            $_SESSION['username'] = $new_username;
+            $refresh = mysqli_query($con, "SELECT * FROM users WHERE id=$my_id");
+            if($refresh) {
+              $_SESSION['user'] = mysqli_fetch_assoc($refresh);
+            }
+            header("Location: profile.php?id=$my_id");
+            exit();
+          } else {
+            $profile_errors[] = 'Failed to update profile. Please try again.';
+          }
+        }
+
+        if(!empty($profile_errors)) {
+          $open_edit_modal = true;
+        }
+      }
+
       if(isset($_POST['add_friend'])) {
         $my_id = $_SESSION["user_id"];
           $sql = "INSERT INTO friend_requests (fr_receiver_id, fr_sender_id) VALUES ('$id', '$my_id')";
@@ -29,13 +151,13 @@
           }
       }
 
-      $sql3 = "SELECT * FROM friend_requests WHERE 	fr_receiver_id='$id' AND fr_sender_id='" . $_SESSION['user_id'] . "'";
+      $sql3 = "SELECT * FROM friend_requests WHERE 	fr_receiver_id='$id' AND fr_sender_id='" . ($_SESSION['user_id'] ?? 0) . "'";
       $query3 = mysqli_query($con, $sql3);
-      $isFRSent = (mysqli_num_rows($query3) > 0) ? true : false;
+      $isFRSent = ($query3 && mysqli_num_rows($query3) > 0);
 
-      $sql5 = "SELECT * FROM friend_requests WHERE 	fr_receiver_id='" . $_SESSION['user_id'] . "' AND fr_sender_id='$id'";
+      $sql5 = "SELECT * FROM friend_requests WHERE 	fr_receiver_id='" . ($_SESSION['user_id'] ?? 0) . "' AND fr_sender_id='$id'";
       $query5 = mysqli_query($con, $sql5);
-      $isFRGot = (mysqli_num_rows($query5) > 0) ? true : false;
+      $isFRGot = ($query5 && mysqli_num_rows($query5) > 0);
 
       if(isset($_POST['cancel_friend_request'])) {
         $my_id = $_SESSION["user_id"];
@@ -45,9 +167,9 @@
         }
       }
 
-      $sql4 = "SELECT * FROM friends WHERE 	fr_receiver_id='" . $_SESSION['user_id'] . "' AND fr_sender_id='$id' OR fr_receiver_id='$id' AND fr_sender_id='" . $_SESSION['user_id'] . "'";
+      $sql4 = "SELECT * FROM friends WHERE 	fr_receiver_id='" . ($_SESSION['user_id'] ?? 0) . "' AND fr_sender_id='$id' OR fr_receiver_id='$id' AND fr_sender_id='" . ($_SESSION['user_id'] ?? 0) . "'";
       $query4 = mysqli_query($con, $sql4);
-      $isFriend = (mysqli_num_rows($query4) > 0) ? true : false;
+      $isFriend = ($query4 && mysqli_num_rows($query4) > 0);
 
       if(isset($_POST['accept_friend_request'])) {
         $my_id = $_SESSION["user_id"];
@@ -83,8 +205,13 @@
       $posts_count = mysqli_num_rows($query2);
     }else{
       header("Location: index.php");
+      exit();
     }
 
+    $display_fullname = $profile_edit_values['fullname'] ?? ($row['fullname'] ?? '');
+    $display_username = $profile_edit_values['username'] ?? ($row['username'] ?? '');
+    $display_bio = $profile_edit_values['bio'] ?? ($row['bio'] ?? '');
+    $is_own_profile = isset($_SESSION['user_id']) && $id == $_SESSION['user_id'];
 ?>
 
 <!doctype html>
@@ -96,7 +223,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>Profile</title>
   </head>
-  <body>
+  <body<?php echo $open_edit_modal ? ' class="modal-open"' : ''; ?>>
     <div class="container" id="post-modal">
       <div id="close-button">x</div>
       <h2 id="post-modal-title">Edit Post</h2>
@@ -115,6 +242,84 @@
         <button type="submit" id="create-post-button">Save</button>
       </form>
     </div>
+
+    <?php if($is_own_profile): ?>
+    <div class="profile-edit-modal<?php echo $open_edit_modal ? ' is-open' : ''; ?>" id="edit-profile-modal">
+      <button type="button" class="profile-modal-close" id="close-edit-profile-btn" aria-label="Close">×</button>
+      <h2 id="profile-modal-title">Edit Profile</h2>
+
+      <?php if(!empty($profile_errors)): ?>
+        <div class="form-errors <?php echo count($profile_errors) === 1 ? 'form-errors-single' : ''; ?>">
+          <?php if(count($profile_errors) > 1): ?>
+            <span class="form-errors-title">Please fix the following:</span>
+            <ul>
+              <?php foreach($profile_errors as $err): ?>
+                <li><?php echo htmlspecialchars($err); ?></li>
+              <?php endforeach; ?>
+            </ul>
+          <?php else: ?>
+            <?php echo htmlspecialchars($profile_errors[0]); ?>
+          <?php endif; ?>
+        </div>
+      <?php endif; ?>
+
+      <form method="post" action="profile.php?id=<?php echo htmlspecialchars($id); ?>" novalidate>
+        <div class="form-group">
+          <label for="edit-fullname">Full name</label>
+          <input
+            type="text"
+            name="fullname"
+            id="edit-fullname"
+            maxlength="255"
+            value="<?php echo htmlspecialchars($display_fullname); ?>"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="edit-username">Username</label>
+          <input
+            type="text"
+            name="username"
+            id="edit-username"
+            maxlength="64"
+            value="<?php echo htmlspecialchars($display_username); ?>"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="edit-bio">Bio</label>
+          <textarea
+            name="bio"
+            id="edit-bio"
+            maxlength="255"
+            placeholder="Tell the community about yourself..."
+          ><?php echo htmlspecialchars($display_bio); ?></textarea>
+          <?php if(!$has_bio_col): ?>
+            <small class="field-hint">Bio changes will be saved once the <code>bio</code> column is added to the <code>users</code> table.</small>
+          <?php endif; ?>
+        </div>
+
+        <div class="password-section">
+          <h3>Change password <span class="optional-label">(optional)</span></h3>
+          <div class="form-group">
+            <label for="edit-current-password">Current password</label>
+            <input type="password" name="current_password" id="edit-current-password" autocomplete="current-password" />
+          </div>
+          <div class="form-group">
+            <label for="edit-new-password">New password</label>
+            <input type="password" name="new_password" id="edit-new-password" autocomplete="new-password" />
+          </div>
+          <div class="form-group">
+            <label for="edit-confirm-password">Confirm new password</label>
+            <input type="password" name="confirm_new_password" id="edit-confirm-password" autocomplete="new-password" />
+          </div>
+        </div>
+
+        <button type="submit" name="edit_profile" class="profile-edit-submit">Save changes</button>
+      </form>
+    </div>
+    <?php endif; ?>
+
     <header>
       <ul>
         <li>
@@ -129,9 +334,9 @@
               </div>
             </li>
             <li class="header-auth">
-              <span class="header-username"><?php echo $_SESSION['fullname']; ?></span>
+              <span class="header-username"><?php echo htmlspecialchars($_SESSION['fullname'] ?? ''); ?></span>
               <a class="header-logout" href="logout.php">Log out</a>
-              <a href="#" class="profile-icon" aria-label="Your profile">
+              <a href="./profile.php?id=<?php echo $_SESSION['user_id'] ?? ''; ?>" class="profile-icon" aria-label="Your profile">
                 <img src="./images/profile-icon.png" alt="" />
               </a>
             </li>
@@ -144,14 +349,17 @@
         <img src="./images/profile-icon.png" alt="Profile Icon" />
       </div>
       <div>
-        <h1 class="profile-name"><?php echo $row['fullname']; ?></h1>
-        <p class="profile-bio">Web developer and tech enthusiast.</p>
+        <h1 class="profile-name"><?php echo htmlspecialchars($row['fullname'] ?? ''); ?></h1>
+        <p class="profile-bio"><?php
+          $shown_bio = $row['bio'] ?? '';
+          echo htmlspecialchars($shown_bio !== '' ? $shown_bio : 'Web developer and tech enthusiast.');
+        ?></p>
       </div>
       <div class="summary">
         <a href="./friends.php?id=<?php echo $id; ?>" class="friends-summary"><?php echo $friends_count; ?> friends</a>
         <div class="posts-summary"><?php echo $posts_count; ?> posts</div>
       </div>
-      <?php if($id != $_SESSION['user_id'] && $id != null) {
+      <?php if($id != ($_SESSION['user_id'] ?? null) && $id != null) {
         if($isFRSent) { ?>
           <div class="friend-request-sent">
             <form method="POST" action="<?php echo $_SERVER['PHP_SELF'] . "?id=$id"; ?>">
@@ -172,7 +380,7 @@
           <button name="reject_friend_request" type="submit" class="fr_reject_btn">Reject <i class="fa-solid fa-x"></i></button>
         </form>
       </div>
-<?php } else { ?>
+<?php } else if(isset($_SESSION['user_id'])) { ?>
       <div class="add-friend">
         <form method="POST" action="<?php echo $_SERVER['PHP_SELF'] . "?id=$id"; ?>">
           <button name="add_friend" type="submit">Add Friend
@@ -181,15 +389,15 @@
         </form>
       </div>
 
-      <?php } } else { ?>
+      <?php } } else if($is_own_profile) { ?>
       <div class="edit-profile">
-        <button>Edit Profile <i class="fa-solid fa-pencil"></i></button>
+        <button type="button" id="open-edit-profile-btn">Edit Profile <i class="fa-solid fa-pencil"></i></button>
       </div>
       <?php } ?>
 
     </div>
     <div class="my-posts" id="my-posts">
-      <h4 class="my-posts-title"><?php if($id != $_SESSION['user_id'] && $id != null) { echo $row['fullname'] . "'s Posts"; }else { echo "My posts"; } ?></h4>
+      <h4 class="my-posts-title"><?php if($id != ($_SESSION['user_id'] ?? null) && $id != null) { echo htmlspecialchars(($row['fullname'] ?? '') . "'s Posts"); }else { echo "My posts"; } ?></h4>
       <div class="posts-list" id="posts-list">
         <ul id="post">
           <?php if($posts_count > 0) { 
@@ -201,7 +409,7 @@
                   <div class="profile-icon">
                     <img src="./images/profile-icon.png" alt="Profile Icon" />
                   </div>
-                  <a href="profile.php?id=<?php echo $posts_row['author_id']; ?>" class="post-author"><?php echo $posts_row['fullname']; ?></a>
+                  <a href="profile.php?id=<?php echo $posts_row['author_id']; ?>" class="post-author"><?php echo htmlspecialchars($posts_row['fullname']); ?></a>
                 </div>
                 <div class="post-header-right">
                   <span class="post-time">3 minutes ago</span>
@@ -231,7 +439,7 @@
                   </details>
                 </div>
               </div>
-              <p class="post-content"><?php echo $posts_row['description']; ?></p>
+              <p class="post-content"><?php echo htmlspecialchars($posts_row['description']); ?></p>
             </div>
           </li>
           <?php } } else { ?>
@@ -242,5 +450,33 @@
     </div>
 
     <script src="script.js"></script>
+    <?php if($is_own_profile): ?>
+    <script>
+      (function () {
+        const openBtn = document.getElementById("open-edit-profile-btn");
+        const closeBtn = document.getElementById("close-edit-profile-btn");
+        const modal = document.getElementById("edit-profile-modal");
+
+        function openModal() {
+          modal.classList.add("is-open");
+          document.body.classList.add("modal-open");
+        }
+
+        function closeModal() {
+          modal.classList.remove("is-open");
+          document.body.classList.remove("modal-open");
+        }
+
+        if (openBtn) openBtn.addEventListener("click", openModal);
+        if (closeBtn) closeBtn.addEventListener("click", closeModal);
+
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && modal.classList.contains("is-open")) {
+            closeModal();
+          }
+        });
+      })();
+    </script>
+    <?php endif; ?>
   </body>
 </html>
